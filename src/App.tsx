@@ -1,10 +1,10 @@
 import "./App.css";
-import NewProductModal from "./components/newProductModal";
+import ProductList from "./components/productList";
 
 function App() {
   return (
     <>
-      <NewProductModal />
+      <ProductList />
     </>
   );
 }
