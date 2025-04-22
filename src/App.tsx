@@ -31,12 +31,7 @@ const App = (props: Props) => {
         </div>
 
         <div>
-          <button
-            type="button"
-            className="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-medium rounded px-4 py-2 transition"
-          >
-            Login
-          </button>
+
         </div>
       </nav>
 
