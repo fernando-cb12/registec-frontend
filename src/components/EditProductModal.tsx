@@ -1,20 +1,36 @@
-import { useState } from "react";
-import { createProduct } from "../api/products";
+import { useState, useEffect } from "react";
+import { Product } from "my-types";
+import { updateProduct } from "../api/products";
 
-interface NewProductModalProps {
+interface EditProductModalProps {
+  product: Product;
   onClose: () => void;
 }
 
-export default function NewProductModal({ onClose }: NewProductModalProps) {
+export default function EditProductModal({
+  product,
+  onClose,
+}: EditProductModalProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    identifier: "",
-    price: "",
-    stock: "",
-    category: "",
+    name: product.name,
+    identifier: product.identifier,
+    price: product.price.toString(),
+    stock: product.stock.toString(),
+    category: product.category,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Update form data if product prop changes
+    setFormData({
+      name: product.name,
+      identifier: product.identifier,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      category: product.category,
+    });
+  }, [product]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -22,7 +38,7 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
     const { id, value } = e.target;
     setFormData({
       ...formData,
-      [id.replace("product-", "")]: value,
+      [id.replace("edit-product-", "")]: value,
     });
   };
 
@@ -46,20 +62,20 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
       setError(null);
 
       // Convert price and stock to numbers
-      const productData = {
-        id: 0, // Placeholder ID
+      const updatedProductData = {
+        id: product.id,
         name: formData.name,
-        identifier: parseInt(formData.identifier),
+        identifier: formData.identifier,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         category: formData.category,
       };
 
-      await createProduct(productData);
+      await updateProduct(updatedProductData);
       onClose(); // Close modal and refresh product list
     } catch (err) {
-      setError("Failed to create product. Please try again.");
-      console.error("Error creating product:", err);
+      setError("Failed to update product. Please try again.");
+      console.error("Error updating product:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +85,7 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-96 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Add New Product</h2>
+          <h2 className="text-xl font-semibold">Edit Product</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -88,13 +104,13 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
           <div className="mb-4 text-left">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="product-name"
+              htmlFor="edit-product-name"
             >
               Product Name
             </label>
             <input
               type="text"
-              id="product-name"
+              id="edit-product-name"
               value={formData.name}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
@@ -104,13 +120,13 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
           <div className="mb-4 text-left">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="product-identifier"
+              htmlFor="edit-product-identifier"
             >
               Identifier
             </label>
             <input
               type="text"
-              id="product-identifier"
+              id="edit-product-identifier"
               value={formData.identifier}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
@@ -120,13 +136,13 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
           <div className="mb-4 text-left">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="product-price"
+              htmlFor="edit-product-price"
             >
               Price
             </label>
             <input
               type="number"
-              id="product-price"
+              id="edit-product-price"
               value={formData.price}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
@@ -138,13 +154,13 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
           <div className="mb-4 text-left">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="product-stock"
+              htmlFor="edit-product-stock"
             >
               Stock
             </label>
             <input
               type="number"
-              id="product-stock"
+              id="edit-product-stock"
               value={formData.stock}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
@@ -155,12 +171,12 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
           <div className="mb-4 text-left">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="product-category"
+              htmlFor="edit-product-category"
             >
               Category
             </label>
             <select
-              id="product-category"
+              id="edit-product-category"
               value={formData.category}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full mb-4"
@@ -192,7 +208,7 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
               className="bg-blue-500 text-white rounded-md px-4 py-2 disabled:bg-blue-300"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Adding..." : "Add Product"}
+              {isSubmitting ? "Updating..." : "Update Product"}
             </button>
           </div>
         </form>
