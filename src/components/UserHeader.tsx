@@ -1,13 +1,7 @@
-interface UserHeaderProps {
-    username: string;
-  }
-  
-  const UserHeader = ({ username }: UserHeaderProps) => {
-    return (
-      <div className="level-item">
-        <p className="subtitle is-6">👤 {username}</p>
-      </div>
-    );
-  };
-  
-  export default UserHeader;
+export default function UserHeader({ username }: { username: string }) {
+  return (
+    <header className="bg-gray-800 text-white p-4">
+      <h1 className="text-2xl font-bold">Welcome, {username}</h1>
+    </header>
+  );
+}
