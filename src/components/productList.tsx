@@ -3,6 +3,19 @@ import { useState, useEffect } from "react";
 import NewProductModal from "./newProductModal";
 import EditProductModal from "./EditProductModal";
 import { getProducts, deleteProduct } from "../api/products";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,6 +25,10 @@ export default function ProductList() {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
+  // Define colors for categories (Pie Chart)
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#8dd1e1", "#a4de6c", "#d0ed57", "#ffbb28"];
+  
+  
   // Load products on component mount
   useEffect(() => {
     fetchProducts();
@@ -76,6 +93,43 @@ export default function ProductList() {
         return product.category === selectedCategory;
       })
     : [];
+    
+    // Get distribution of products by category (its used by the graphs)
+    const getCategoryDistribution = () => {
+      const distribution: Record<string, number> = {};
+    
+      products.forEach((product) => {
+        const category = product.category || "Uncategorized";
+        distribution[category] = (distribution[category] || 0) + 1;
+      });
+    
+      return Object.entries(distribution).map(([category, count]) => ({
+        category,
+        count,
+      }));
+    };
+
+      // Custom label function for displaying percentage on the pie chart
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index
+  }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -200,6 +254,57 @@ export default function ProductList() {
           </table>
         </div>
       )}
+
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Product Distribution by Category</h2>
+        <div className="bg-white p-4 rounded shadow-md w-full h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={getCategoryDistribution()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="category" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#3182ce" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Product Distribution (Pie Chart)</h2>
+        <div className="bg-white p-4 rounded shadow-md w-full h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={getCategoryDistribution()}
+                dataKey="count"
+                nameKey="category"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={renderCustomizedLabel}
+                labelLine={false}
+              >
+                {getCategoryDistribution().map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#8dd1e1", "#a4de6c", "#d0ed57", "#ffbb28"][index % 8]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
     </div>
+    
+      
+
+
+
+
+
+
+
   );
 }
