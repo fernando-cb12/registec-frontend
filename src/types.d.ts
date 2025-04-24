@@ -19,4 +19,5 @@ declare module "my-types" {
     phoneNumber: string;
   };
   export type NewProduct = Omit<Product, "id">;
+  export type NewSupplier = Omit<Supplier, "id">;
 }

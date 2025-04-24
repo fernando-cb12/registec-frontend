@@ -2,7 +2,8 @@ import { Product } from "my-types";
 import { useState, useEffect } from "react";
 import NewProductModal from "./newProductModal";
 import EditProductModal from "./EditProductModal";
-import { getProducts, deleteProduct } from "../api/products";
+import { getProducts, deleteProduct } from "../../api/products";
+import { TrashIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -172,24 +173,24 @@ export default function ProductList() {
                         onClick={() => handleEditProduct(product)}
                         className="font-medium text-blue-600 hover:underline"
                       >
-                        Edit
+                        <PencilSquareIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
                         className="font-medium text-red-600 hover:underline"
                       >
-                        Delete
+                        <TrashIcon className="h-5 w-5" />
                       </button>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
-            <tfoot className="text-xs text-gray-700 uppercase bg-gray-50 grid">
+            <tfoot className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <td colSpan={6} className="px-6 py-3 text-center">
+                <td colSpan={6} className="px-6 py-3">
                   <button
-                    className="bg-blue-500 text-white rounded-md px-4 py-2 flex items-center w-full"
+                    className="bg-blue-500 text-white rounded-md px-4 py-2 flex items-center justify-center w-full"
                     onClick={() => setNewProductModal(true)}
                   >
                     <span className="text-xl">+</span>
