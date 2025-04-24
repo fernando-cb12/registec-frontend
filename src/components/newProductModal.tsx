@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { createProduct } from "../api/products";
+import { createProduct, getProducts } from "../api/products";
+import { Product, NewProduct } from "my-types";
 
 interface NewProductModalProps {
   onClose: () => void;
+  onProductAdded: (products: Product[]) => void;
 }
 
-export default function NewProductModal({ onClose }: NewProductModalProps) {
+export default function NewProductModal({
+  onClose,
+  onProductAdded,
+}: NewProductModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     identifier: "",
@@ -29,7 +34,7 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
+    // Validación básica
     if (
       !formData.name ||
       !formData.identifier ||
@@ -41,13 +46,21 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
       return;
     }
 
+    // Validación de números válidos
+    if (
+      isNaN(parseInt(formData.identifier)) ||
+      isNaN(parseFloat(formData.price)) ||
+      isNaN(parseInt(formData.stock))
+    ) {
+      setError("Identifier, Price, and Stock must be valid numbers.");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError(null);
 
-      // Convert price and stock to numbers
-      const productData = {
-        id: 0, // Placeholder ID
+      const productData: NewProduct = {
         name: formData.name,
         identifier: parseInt(formData.identifier),
         price: parseFloat(formData.price),
@@ -56,7 +69,10 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
       };
 
       await createProduct(productData);
-      onClose(); // Close modal and refresh product list
+
+      const updatedProducts = await getProducts();
+      onProductAdded(updatedProducts);
+      onClose();
     } catch (err) {
       setError("Failed to create product. Please try again.");
       console.error("Error creating product:", err);
@@ -109,12 +125,13 @@ export default function NewProductModal({ onClose }: NewProductModalProps) {
               Identifier
             </label>
             <input
-              type="text"
+              type="number"
               id="product-identifier"
               value={formData.identifier}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
               placeholder="Enter product identifier"
+              min="0"
             />
           </div>
           <div className="mb-4 text-left">

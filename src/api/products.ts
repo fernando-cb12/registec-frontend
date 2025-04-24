@@ -1,5 +1,5 @@
 import api from "./index";
-import { Product } from "my-types";
+import { NewProduct, Product } from "my-types";
 
 export const getProducts = async (): Promise<Product[]> => {
   try {
@@ -15,7 +15,7 @@ export const getProducts = async (): Promise<Product[]> => {
     throw error;
   }
 };
-export const createProduct = async (product: Product) => {
+export const createProduct = async (product: NewProduct) => {
   try {
     const response = await api.post<Product>("/product", product);
     return response.data;

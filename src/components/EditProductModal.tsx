@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { Product } from "my-types";
-import { updateProduct } from "../api/products";
+import { updateProduct, getProducts } from "../api/products";
 
 interface EditProductModalProps {
   product: Product;
   onClose: () => void;
+  onProductUpdated: (products: Product[]) => void;
 }
 
 export default function EditProductModal({
   product,
   onClose,
+  onProductUpdated,
 }: EditProductModalProps) {
   const [formData, setFormData] = useState({
     name: product.name,
-    identifier: product.identifier,
+    identifier: product.identifier.toString(),
     price: product.price.toString(),
     stock: product.stock.toString(),
     category: product.category,
@@ -22,10 +24,9 @@ export default function EditProductModal({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Update form data if product prop changes
     setFormData({
       name: product.name,
-      identifier: product.identifier,
+      identifier: product.identifier.toString(),
       price: product.price.toString(),
       stock: product.stock.toString(),
       category: product.category,
@@ -45,7 +46,7 @@ export default function EditProductModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
+    // Validación básica
     if (
       !formData.name ||
       !formData.identifier ||
@@ -57,22 +58,34 @@ export default function EditProductModal({
       return;
     }
 
+    // Validación de números válidos
+    if (
+      isNaN(parseInt(formData.identifier)) ||
+      isNaN(parseFloat(formData.price)) ||
+      isNaN(parseInt(formData.stock))
+    ) {
+      setError("Identifier, Price, and Stock must be valid numbers.");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError(null);
 
-      // Convert price and stock to numbers
-      const updatedProductData = {
+      const updatedProductData: Product = {
         id: product.id,
         name: formData.name,
-        identifier: formData.identifier,
+        identifier: parseInt(formData.identifier),
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         category: formData.category,
       };
 
       await updateProduct(updatedProductData);
-      onClose(); // Close modal and refresh product list
+
+      const updatedProducts = await getProducts();
+      onProductUpdated(updatedProducts);
+      onClose();
     } catch (err) {
       setError("Failed to update product. Please try again.");
       console.error("Error updating product:", err);
@@ -125,12 +138,13 @@ export default function EditProductModal({
               Identifier
             </label>
             <input
-              type="text"
+              type="number"
               id="edit-product-identifier"
               value={formData.identifier}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2 w-full"
               placeholder="Enter product identifier"
+              min="0"
             />
           </div>
           <div className="mb-4 text-left">
