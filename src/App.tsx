@@ -10,9 +10,8 @@ const App = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0">
-        <UserHeader username={userFromDB.name} />
-      </div>
+      <UserHeader username={userFromDB.name} />
+
       <div className="grid">
         <h1 className="text-2xl font-bold">Product Management</h1>
         <ProductList />
