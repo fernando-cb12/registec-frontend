@@ -2,6 +2,7 @@ import "./App.css";
 import ProductList from "./components/product/productList";
 import SupplierList from "./components/supplier/supplierList";
 import UserHeader from "./components/UserHeader";
+import ProductCategoryGraphs from "./components/product/graphs";
 
 const App = () => {
   const userFromDB = {
@@ -17,6 +18,8 @@ const App = () => {
         <ProductList />
         <h1 className="text-2xl font-bold">Supplier Management</h1>
         <SupplierList />
+        <h1 className="text-2xl font-bold">Graphs</h1>
+        <ProductCategoryGraphs />
       </div>
     </>
   );
